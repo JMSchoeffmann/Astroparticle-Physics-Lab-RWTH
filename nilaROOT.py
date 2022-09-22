@@ -6,6 +6,7 @@ Code to work with the root files in the "Air Shower Array"-experiment in the "As
 import uproot
 import h5py
 import awkward as ak
+import matplotlib.pyplot as plt
 
 def open(rootFile):
     ''' String: file e.g. testData.root'''
@@ -55,7 +56,7 @@ def getDataAll(rootFile, timeORwave, board, ch):
         String: timeORwave {"time", "wave"}
         Int: board {49, 50}
         Int: ch {1, 2, 3, 4}'''
-    key = timeORwave + "_sn26" + board + "_" + ch
+    key = timeORwave + "_sn26" + str(board) + "_ch" + str(ch)
     return getDataWithKey(rootFile, key)
 
 def getData(rootFile, timeORwave, board, ch, event):
@@ -64,5 +65,10 @@ def getData(rootFile, timeORwave, board, ch, event):
         Int: board {49, 50}
         Int: ch {1, 2, 3, 4}
         Int: event {1, ..., NEvents}'''
-    key = timeORwave + "_sn26" + board + "_" + ch
+    key = timeORwave + "_sn26" + str(board) + "_ch" + str(ch)
     return getEventWithKey(rootFile, key, event)
+
+def getPlot(rootFile, board, ch, event):
+    dataTime = getData(rootFile, "time", board, ch, event)
+    dataWave = getData(rootFile, "wave", board, ch, event)
+    return plt.plot(dataTime, dataWave)
