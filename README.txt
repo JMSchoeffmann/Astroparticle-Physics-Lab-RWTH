@@ -1,1 +1,8 @@
 Code to work with the root files in the "Air Shower Array"-experiment in the "Astroparticle-Physics-Lab-Course" in the Physics Masters at RWTH Aachen 
+
+Code example:
+from nilaROOT import *
+rootFile = "data/testData.root"
+print(getNEvents(rootFile))
+plot = getPlot(rootFile, 49, 1, 1)
+plt.show()
