@@ -6,8 +6,6 @@ Code to work with the root files in the "Air Shower Array"-experiment in the "As
 import uproot
 import h5py
 import awkward as ak
-#import numpy as np
-#import matplotlib.pyplot as plt
 
 def open(rootFile):
     ''' String: file e.g. testData.root'''
