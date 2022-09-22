@@ -3,33 +3,41 @@ Author: Marvin Schöffmann
 Code to work with the root files in the "Air Shower Array"-experiment in the "Astroparticle-Physics-Lab-Course" in the Physics Masters at RWTH Aachen 
 '''
 
-import uproot
-import h5py
-import awkward as ak
-import matplotlib.pyplot as plt
+from uproot import open
+from h5py import File
+from awkward import to_numpy
+from matplotlib.pyplot import plot
+from time import time
 
 def open(rootFile):
     ''' String: file e.g. testData.root'''
-    return uproot.open(rootFile)
+    return open(rootFile)
 
-def saveTreeH5(tree, name="data"):
+def saveTreeH5(tree, path="data/", name="data"):
     ''' TTree: tree
+        String: path (for h5 file)
         String: name {config, data}'''
-    hf = h5py.File(name+"DICT.h5", "w")
+    print("Start unpack tree:", name)
+    timeStart = time()
+    hf = File(path+name+"DICT.h5", "w")
+    percent = 0.0
     for key in tree.keys():
         data = tree[key].array()
         if name == "data" and data.fields != []: data = data["fElements"]
-        data = ak.to_numpy(data)
+        data = to_numpy(data)
         hf.update({key: data})
+        percent += 1/len(tree.keys())
+        print("Progress: {:.0%}".format(percent))
     hf.close()
+    print("Time: {:.3f} seconds".format(time()-timeStart))
     return name+"DICT.h5"
 
-def saveBothTreesH5(rootFile):
+def saveBothTreesH5(rootFile, path="data/"):
     ''' String: file e.g. testData.root'''
     file = open(rootFile)
     return (
-        saveTreeH5(file["ConfigTree"], name="config"),
-        saveTreeH5(file["DataTree"], name="data"))
+        saveTreeH5(file["ConfigTree"], path, "config"),
+        saveTreeH5(file["DataTree"], path, "data"))
 
 def getDataKeys(rootFile):
     ''' String: file e.g. testData.root'''
@@ -43,8 +51,8 @@ def getDataWithKey(rootFile, key):
     ''' String: file e.g. testData.root
         String: key'''
     data = open(rootFile)["DataTree"][key].array()
-    if data.fields != []: return ak.to_numpy(data["fElements"])
-    return ak.to_numpy(data)
+    if data.fields != []: return to_numpy(data["fElements"])
+    return to_numpy(data)
 
 def getEventWithKey(rootFile, key, event):
     '''Int: event {1, ..., NEvents}'''
@@ -71,4 +79,4 @@ def getData(rootFile, timeORwave, board, ch, event):
 def getPlot(rootFile, board, ch, event):
     dataTime = getData(rootFile, "time", board, ch, event)
     dataWave = getData(rootFile, "wave", board, ch, event)
-    return plt.plot(dataTime, dataWave)
+    return plot(dataTime, dataWave)
