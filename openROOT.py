@@ -9,7 +9,7 @@ from awkward import to_numpy
 from matplotlib.pyplot import plot
 from time import time
 
-def open(rootFile):
+def openRoot(rootFile):
     ''' String: file e.g. testData.root'''
     return open(rootFile)
 
@@ -25,6 +25,7 @@ def saveTreeH5(tree, path="data/", name="data"):
         data = tree[key].array()
         if name == "data" and data.fields != []: data = data["fElements"]
         data = to_numpy(data)
+        if name == "config": data = data[0]
         hf.update({key: data})
         percent += 1/len(tree.keys())
         print("Progress: {:.0%}".format(percent))
@@ -34,14 +35,14 @@ def saveTreeH5(tree, path="data/", name="data"):
 
 def saveBothTreesH5(rootFile, path="data/"):
     ''' String: file e.g. testData.root'''
-    file = open(rootFile)
+    file = openRoot(rootFile)
     return (
         saveTreeH5(file["ConfigTree"], path, "config"),
         saveTreeH5(file["DataTree"], path, "data"))
 
 def getDataKeys(rootFile):
     ''' String: file e.g. testData.root'''
-    return open(rootFile)["DataTree"].keys()
+    return openRoot(rootFile)["DataTree"].keys()
 
 def getNEvents(rootFile):
     ''' String: file e.g. testData.root'''
@@ -50,7 +51,7 @@ def getNEvents(rootFile):
 def getDataWithKey(rootFile, key):
     ''' String: file e.g. testData.root
         String: key'''
-    data = open(rootFile)["DataTree"][key].array()
+    data = openRoot(rootFile)["DataTree"][key].array()
     if data.fields != []: return to_numpy(data["fElements"])
     return to_numpy(data)
 
